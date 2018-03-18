@@ -1,15 +1,6 @@
 homeassistant:
   # Name of the location where Home Assistant is running
   name: Home
-  # Location required to calculate the time the sun rises and sets
-  latitude: 47.2011
-  longitude: 8.7782
-  # Impacts weather/sunrise data (altitude above sea level in meters)
-  elevation: 0
-  # metric for Metric, imperial for Imperial
-  unit_system: metric
-  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  time_zone: Europe/Zurich
   # Customization file
   customize: !include customize.yaml
 
@@ -76,7 +67,7 @@ script: !include scripts.yaml
 #     homeassistant.components.hello_world: debug
 
 hello_world:
-  text: 'Hello, World! - and Guido'
+  text: 'Hello, World! - and Swissglider'
 
 hello_service:
 
@@ -136,12 +127,6 @@ sg_panel:
       Kueche
 
 panel_custom:
-  - name: react
-    sidebar_title: Panels
-    sidebar_icon: mdi:work
-    url_path: todomvc
-    config:
-      title: hello
   - name: hello
     sidebar_title: Hello World
     sidebar_icon: mdi:hand-pointing-right
