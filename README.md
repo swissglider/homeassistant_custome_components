@@ -3,3 +3,6 @@
 * Zeptrion Air Hub
 * Zeptrion Hue Lights
 * SG Panes
+
+## Dependencis
+* zeptrionAirApi
