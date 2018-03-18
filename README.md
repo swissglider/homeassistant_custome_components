@@ -1,4 +1,4 @@
-# homeassistant_custome_components
+# Swissglider Home Assistant Custom Components
 ## Components
 * Zeptrion Air Hub
 * Zeptrion Hue Lights
