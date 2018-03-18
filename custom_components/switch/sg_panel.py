@@ -1,7 +1,7 @@
 """
 Swiss glider Panel.
 
-Version V.0.0.1
+Version V.0.0.2
 
 Package:
     custom_components.sg_panel.py
@@ -25,6 +25,7 @@ ToDo:
 - Splitt into two Components
 - Change to hide insteed of remove group
 - Change the add Main Panel to be added
+- Auto Update
 
 For more details about this Class, please refer to the documentation at
 https://github.com/swissglider/homeassistant_custome_components
@@ -70,6 +71,18 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
             'add_entities': switch_entity_names
         }
     hass.services.call("group", "set", sub_group)
+
+    # entities = hass.states.entity_ids()
+    # printout = '$$$$$$$$$$$$$$$$$$$\n'
+    # for entity in entities:
+    #     printout += '\t entity_name: ' + entity + '\n'
+        
+    # _LOGGER.error(printout)
+
+    # default_group_view = hass.states.get('group.default_view')
+    # _LOGGER.error(default_group_view)
+    # dv_attr = default_group_view.attributes
+    # _LOGGER.error(dv_attr)
 
     panel_group_name = entity_helper.generate_entity_id(GROUP_ID_FORMAT, 'panel', hass=hass)
 

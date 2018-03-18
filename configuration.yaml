@@ -85,8 +85,18 @@ python_script:
 
 hue:
 
+# Pattern elements group / splitt name / name
+sg_renamer:
+    - platform_name: hue
+      domain: 
+        light
+    - platform_name: zeptrionairhub
+      domain: 
+        light
+        cover
 
-# musst: name / opt: group, donain_filter, attr_filter, group_filter
+
+# musst: name / opt: group, donain_filter, platform_filter, group_filter
 sg_panel:
   - name: Hello World
     domain_filter:
@@ -102,16 +112,16 @@ sg_panel:
     domain_filter:
       cover
   - name: Hue Lights
-    attr_filter:
-      emulated_hue_hidden
+    platform_filter:
+      hue
   - name: Zeptrion Devices
-    attr_filter:
-      is_zeptrion_group
+    platform_filter:
+      zeptrionairhub
   - name: Zeptrion Lights Stube
     domain_filter:
       light
-    attr_filter:
-      is_zeptrion_group
+    platform_filter:
+      zeptrionairhub
     group_filter:
       Stube
   - name: 1. Stock

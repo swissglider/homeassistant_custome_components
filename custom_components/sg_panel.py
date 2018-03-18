@@ -1,14 +1,14 @@
 """
 Swiss glider Panel.
 
-Version V.0.0.1
+Version V.0.0.2
 
 Package:
     custom_components.sg_panel.py
     custom_components.switch.sg_panel.py
 
 configuration.yaml:
-    # musst: name / opt: group, donain_filter, attr_filter, group_filter
+    # musst: name / opt: group, donain_filter, platform_filter, group_filter
     sg_panel:
     - name: Hello World
         domain_filter:
@@ -16,21 +16,26 @@ configuration.yaml:
     - name: Zeptrion Lights Stube
         domain_filter:
             light
-        attr_filter:
-            is_zeptrion_group
+        platform_filter:
+            zeptrionairhub
         group_filter:
             Stube
 
 ToDo:
-- Splitt into two Components
 - Change to hide insteed of remove group
 - Change the add Main Panel to be added
+- Auto Update
+
+Updates:
+- Splitted into two components --> new Component Renamer
+- Changed from attribut to platform filter
 
 For more details about this Class, please refer to the documentation at
 https://github.com/swissglider/homeassistant_custome_components
 """
 
 import logging
+import yaml
 
 import homeassistant.helpers.entity as entity_helper
 from homeassistant.helpers.event import track_state_change
@@ -66,11 +71,11 @@ def setup(hass, config):
             for filter in filters:
                 domain_filter.append(filter)
 
-        attr_filter = []
-        if 'attr_filter' in panel:
-            filters = panel['attr_filter'].split( )
+        platform_filters = []
+        if 'platform_filter' in panel:
+            filters = panel['platform_filter'].split( )
             for filter in filters:
-                attr_filter.append(filter)
+                platform_filters.append(filter)
 
         group_filters = []
         if 'group_filter' in panel: 
@@ -78,7 +83,7 @@ def setup(hass, config):
             for filter in filters:
                 group_filters.append(filter)
 
-        overview_panel = OverviewPanel(name, DOMAIN, domain_filter, attr_filter, group_filters, hass)
+        overview_panel = OverviewPanel(name, DOMAIN, domain_filter, platform_filters, group_filters, hass)
         #track_state_change(hass, overview_panel._switch_name, overview_panel.handel_switch_change_event_show, 'False', 'True')
         #track_state_change(hass, overview_panel._switch_name, overview_panel.handel_switch_change_event_hide, 'True', 'False')
         #hass.services.register(DOMAIN, entity_id + '_show', overview_panel.show)
@@ -98,11 +103,11 @@ def setup(hass, config):
     return True
 
 class OverviewPanel:
-    def __init__(self, name, domain, domain_filter, attr_filters, group_filters, hass):
+    def __init__(self, name, domain, domain_filter, platform_filters, group_filters, hass):
         self.hass = hass
         self._name = name
         self._domain_filter = domain_filter
-        self._attr_filters = attr_filters
+        self._platform_filters = platform_filters
         self._group_filters = group_filters
         self._entity_id = entity_helper.generate_entity_id('{}',name, hass=self.hass)
         self._generated = False
@@ -116,7 +121,7 @@ class OverviewPanel:
     def show(self, call = None):
         if self._generated is False:
             #self._generate_panel(self._domain_filter)
-            self._generate_panel(self._domain_filter, self._attr_filters, self._group_filters)
+            self._generate_panel(self._domain_filter, self._platform_filters, self._group_filters)
         self.hass.services.call("group", "update")
         self._generated = True
         return True
@@ -125,6 +130,7 @@ class OverviewPanel:
         payload = {
             "object_id": self._entity_id,
         }
+        self.hass.services.call()
         self.hass.services.call("group", "remove", payload)
         self.hass.services.call("group", "update")
         self._generated = False
@@ -134,14 +140,13 @@ class OverviewPanel:
     # ========================== Panel Generator Methodes
     # ========================================================
 
-    def _generate_panel(self, domain_filters = None, attr_filters  = None, group_filters = None):
+    def _generate_panel(self, domain_filters = None, platform_filters = None, group_filters = None):
         entities = []
         if domain_filters:
             for domain_filters in domain_filters:
-                entities = entities + self._get_entities(domain_filters, attr_filters, group_filters)
+                entities = entities + self._get_entities(domain_filters, platform_filters, group_filters)
         else:
-            entities = self._get_entities(None, attr_filters, group_filters)
-        self._rename_all_frienly_names(entities)
+            entities = self._get_entities(None, platform_filters, group_filters)
         filtered_entities = self._filterBindedDevices(entities)
         self._generate_all_group_channels(filtered_entities)
     
@@ -216,31 +221,10 @@ class OverviewPanel:
         }
 
     # ========================================================
-    # ========================== Change Registry Name
-    # ========================================================
-
-    def _changeFriendlyName(self, enitity_name, friendly_name):
-        ''' Change the Registry Name of the entity. '''
-        import requests
-        import json
-        url = 'http://localhost:8123/api/config/entity_registry/' + str(enitity_name)
-        payload = {'name': str(friendly_name)}
-        headers = {'content-type': 'application/json'}
-        r = requests.post(url, data=json.dumps(payload), headers=headers)
-        if r.status_code is not 200:
-            _LOGGER.warning('Frienly Name(' + friendly_name + ') change was not successfull for Entity: ' + str(enitity_name) + " Status-Code: " + str(r.status_code))
-
-    def _rename_all_frienly_names(self, entites):
-        ''' Change all entities Registry Names to friendly name. '''
-        for entity in entites:
-            if 'entity_name' in entity and 'friendly_name' in entity:
-                self._changeFriendlyName(entity['entity_name'], entity['friendly_name'])
-
-    # ========================================================
     # ========================== Filter Entities
     # ========================================================
     
-    def _get_entities(self, domain_filter = None, attr_filters = None, group_filters = None):
+    def _get_entities(self, domain_filter = None, platform_filters = None, group_filters = None):
         _entities = [] # --> [{entity_name: '',name: '', friendly_name: '', group_name: ''}]
         all_entities = self._get_all_entities(domain_filter)
         for entity_name in all_entities:
@@ -261,22 +245,14 @@ class OverviewPanel:
             friendly_name = self._get_friendly_name(friendly_name)
             group_name = self._get_friendly_name(group_name)
             
-            # Filter attributes if available
-            if attr_filters and (len(set(attr_filters) & set(entity_attributes)) is 0):
+            # Filter platform if available
+            if platform_filters and len(platform_filters) != 0 and self._is_from_platform(entity_name, platform_filters) == False:
                 continue
-
             # Filter groups if avaialable
             if group_filters and (group_name not in group_filters):
                 continue
 
             _entities.append(self._get_panel_entity_dict(entity_name, name, friendly_name, group_name))
-
-            # if not attr_filters:
-            #     _entities.append(self._get_panel_entity_dict(entity_name, name, friendly_name, group_name))
-            # else:
-            #     for attr_filter in attr_filters:
-            #         if attr_filter in entity_attributes:
-            #             _entities.append(self._get_panel_entity_dict(entity_name, name, friendly_name, group_name))
         return _entities
         
     def _filterBindedDevices(self, entities):
@@ -295,5 +271,17 @@ class OverviewPanel:
                 mergedList.append(entity)
 
         return mergedList
+
+    def _is_from_platform(self, entity_name, platform_filters):
+        PATH_REGISTRY = 'entity_registry.yaml'
+        path = self.hass.config.path(PATH_REGISTRY)
+        data = None
+        with open(path) as fp:
+            data = yaml.load(fp)
+        if entity_name in data:
+            info = data[entity_name]
+            if info['platform'] in platform_filters:
+                return True
+        return False
 
 # =====================================================================================================
