@@ -94,6 +94,9 @@ sg_renamer:
       domain: 
         light
         cover
+    - platform_name: zeptrion_hue_lights
+      domain: 
+        light
 
 
 # musst: name / opt: group, donain_filter, platform_filter, group_filter
@@ -135,6 +138,9 @@ sg_panel:
       Garderobe
       Esszimmer
       Kueche
+  - name: Zeptrion Hue Group
+    platform_filter:
+      zeptrion_hue_lights
 
 panel_custom:
   - name: hello

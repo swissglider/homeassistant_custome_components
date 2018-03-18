@@ -90,8 +90,7 @@ class NameChanger:
             data = yaml.load(fp)
         for entity_id, info in data.items():
             if (entity_id in entities) and (str(info['platform']) == str(platform_name)):
-                    _LOGGER.error('Check2 : ' + str(entity_id) + '\t' + str(platform_name) + '\n')
-                    return_entities.append(entity_id)
+                return_entities.append(entity_id)
         
         return return_entities
 

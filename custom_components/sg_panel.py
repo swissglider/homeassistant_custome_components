@@ -130,7 +130,6 @@ class OverviewPanel:
         payload = {
             "object_id": self._entity_id,
         }
-        self.hass.services.call()
         self.hass.services.call("group", "remove", payload)
         self.hass.services.call("group", "update")
         self._generated = False
