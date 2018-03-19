@@ -22,6 +22,8 @@ configuration.yaml:
             Stube
 
 ToDo:
+- Multiple Panels
+- Panels sorted by oder things than group or without sorting
 - Splitt into two Components
 - Change to hide insteed of remove group
 - Change the add Main Panel to be added
@@ -65,26 +67,12 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     sub_group = {
             'object_id': 'panel',
             'name': 'Panel Switch',
-            # 'view': True,
+            #'view': True,
             'view': False,
             'visible': True,
             'add_entities': switch_entity_names
         }
     hass.services.call("group", "set", sub_group)
-
-    # entities = hass.states.entity_ids()
-    # printout = '$$$$$$$$$$$$$$$$$$$\n'
-    # for entity in entities:
-    #     printout += '\t entity_name: ' + entity + '\n'
-        
-    # _LOGGER.error(printout)
-
-    # default_group_view = hass.states.get('group.default_view')
-    # _LOGGER.error(default_group_view)
-    # dv_attr = default_group_view.attributes
-    # _LOGGER.error(dv_attr)
-
-    panel_group_name = entity_helper.generate_entity_id(GROUP_ID_FORMAT, 'panel', hass=hass)
 
     default_panel = {
             'object_id': 'default_view',
