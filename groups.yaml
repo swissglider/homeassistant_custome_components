@@ -1,7 +1,7 @@
 # default_view:
 #   view: true
 #   entities:
-#     - switch.overview_panel
+#     - switch.jolina_schreibtisch
 #     - switch.with_cover_panel
 #     #- switch.only_cover_panel
 # alle_lichter:
@@ -24,3 +24,4 @@
 #   name: "Storen hinten"
 #   entities:
 #     - cover.storen_hinten
+    

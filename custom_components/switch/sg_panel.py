@@ -88,10 +88,11 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     default_panel = {
             'object_id': 'default_view',
+            # 'object_id': 'test_panel',
             'name': 'Home',
             'view': True,
             'visible': True,
-            'add_entities': [panel_group_name]
+            'add_entities': ['group.panel']
         }
     hass.services.call("group", "set", default_panel)
 
