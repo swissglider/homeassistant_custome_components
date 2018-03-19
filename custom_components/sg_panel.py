@@ -1,7 +1,7 @@
 """
 Swiss glider Panel.
 
-Version V.0.0.2
+Version V.0.0.3
 
 Package:
     custom_components.sg_panel.py
@@ -22,6 +22,8 @@ configuration.yaml:
             Stube
 
 ToDo:
+- Multiple Panels
+- Sort function not only group
 - Change to hide insteed of remove group
 - Change the add Main Panel to be added
 - Auto Update
