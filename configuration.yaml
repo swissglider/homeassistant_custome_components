@@ -50,10 +50,6 @@ sun:
 sensor:
   - platform: yr
 
-# Text to speech
-tts:
-  - platform: google
-
 # Cloud
 cloud:
 
@@ -66,85 +62,21 @@ script: !include scripts.yaml
 #   logs:
 #     homeassistant.components.hello_world: debug
 
-hello_world:
-  text: 'Hello, World! - and Swissglider'
+test:
 
-hello_service:
-
-light:
-    - platform: zeptrion_hue_lights
-      mappings:
-        # Name: [zeptrion_entity_name, hue_entity_name, group_name]
-        "Licht Küche": [light.kueche_kueche_2, light.kueche_kueche, 'Kueche']
-        "Licht Stube": [light.stube_stube_2, light.stube_stube, 'Stube']
-      scan_interval: 1
+discovery:
+  ignore:
+    - apple_tv
+    - google_cast
+    - philips_hue
+    - plex_mediaserver
+    - samsung_tv
+    - samsung_printer
+    - kodi
+    - xiaomi_gw
+    - philips_hue
 
 zeptrionairhub:
 
-python_script:
-
-hue:
-
-# Pattern elements group / splitt name / name
-sg_renamer:
-    - platform_name: hue
-      domain: 
-        light
-    - platform_name: zeptrionairhub
-      domain: 
-        light
-        cover
-    - platform_name: zeptrion_hue_lights
-      domain: 
-        light
-
-
-# musst: name / opt: group, donain_filter, platform_filter, group_filter
-sg_panel:
-  - name: Hello World
-    domain_filter:
-      hello_world
-  - name: All Lights
-    domain_filter:
-      light
-  - name: All Lights + Covers
-    domain_filter:
-      light
-      cover
-  - name: All Covers
-    domain_filter:
-      cover
-  - name: Hue Lights
-    platform_filter:
-      hue
-  - name: Zeptrion Devices
-    platform_filter:
-      zeptrionairhub
-  - name: Zeptrion Lights Stube
-    domain_filter:
-      light
-    platform_filter:
-      zeptrionairhub
-    group_filter:
-      Stube
-  - name: 1. Stock
-    domain_filter:
-      light
-      cover
-      switch
-      sensor
-    group_filter:
-      Stube
-      Garderobe
-      Esszimmer
-      Kueche
-  - name: Zeptrion Hue Group
-    platform_filter:
-      zeptrion_hue_lights
-
-panel_custom:
-  - name: hello
-    sidebar_title: Hello World
-    sidebar_icon: mdi:hand-pointing-right
-    url_path: hello
-
+light:
+  - platform: test_l

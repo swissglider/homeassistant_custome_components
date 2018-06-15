@@ -1,0 +1,14 @@
+[
+    {
+        "data": {
+            "bridge_id": "001788FFFE2C7190",
+            "host": "192.168.86.170",
+            "username": "8iCYAvSFnB1j0Rw3AdLVEBFHMWYP-pAicDFg2epi"
+        },
+        "domain": "hue",
+        "entry_id": "d40598b06dec437cb6c4e444444de1f4",
+        "source": "import",
+        "title": "Hue Bridge",
+        "version": 1
+    }
+]

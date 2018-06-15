@@ -1,7 +1,11 @@
 import logging
 import asyncio
 
+from homeassistant.components.switch import SwitchDevice
 from homeassistant.components.light import ATTR_BRIGHTNESS, Light
+import homeassistant.helpers.entity as entity_helper
+from homeassistant.components.switch import ENTITY_ID_FORMAT as SWITCH_ENTITY_ID_FORMAT
+from homeassistant.components.group import ENTITY_ID_FORMAT as GROUP_ID_FORMAT
 from homeassistant.const import (STATE_OFF, STATE_ON)
 from homeassistant.core import callback
 
@@ -24,14 +28,45 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
             try:
                 for index, button in enumerate(temp_panel.all_buttons, start=0):
                     if button is not None:
+
+                        # --------------------------------
+                        # Set Status
+                        # --------------------------------
+                        # button_struct = {
+                        #     "name":button.name,
+                        #     "group":button.group,
+                        #     "cat":button.cat,
+                        #     "id":button.id,
+                        #     "friendly_name":button.name
+                        # }
+                        # temp_panel_name = panel.name.replace('.', '_').replace('-', '_')
+                        # hass.states.async_set(DOMAIN + "." + temp_panel_name + button.id, button._update(),button_struct)
                         temp_Handler = ButtonHandler(temp_panel, button, hass)
 
                         entities.append(temp_Handler)
+
+                        # --------------------------------
+                        # Notification Message
+                        # --------------------------------
+                        # button_message  = ""
+                        # button_message += "\nPanel Name: " + str(panel.name)
+                        # button_message += "\nURL: " + str(panel.url)
+                        # button_message += "\nName: " + str(button.name)
+                        # button_message += "\nGroup: " + str(button.group)
+                        # button_message += "\nCat: " + str(button.cat)
+                        # button_message += "\nID: " + str(button.id)
+
+                        # hass.async_run_job(hass.services.async_call('persistent_notification', 'create',
+                        #     {
+                        #         "message":button_message,
+                        #         "title":"New Zeptrion Button found"
+                        #     }
+                        # ))
             except Exception as ex:
                 _LOGGER.critical(ex)
-    async_add_devices(entities)
+    # async_add_devices(entities)
 
-class ButtonHandler(Light):
+class ButtonHandler(SwitchDevice):
     def __init__(self, panel, button, hass):
         self.panel = panel
         self.button = button
@@ -62,12 +97,27 @@ class ButtonHandler(Light):
             if press_info.value is not None:
                 button_struct['last_value'] = press_info.value
                 if press_info.value == 0 or press_info.value == '0':
-                    temp_value = STATE_OFF
+                    temp_value = "off"
                 else:
-                    temp_value = STATE_ON
+                    temp_value = "on"
             else:
                 temp_value = press_info.type
+            self.hass.states.async_set("switch" + "." + self.temp_panel_name + self.button.id, temp_value, button_struct)
             # self.hass.states.async_set("light" + "." + self.temp_panel_name + self.button.id, temp_value, button_struct)
+
+            # # --------------------------------
+            # # Notification Message
+            # # --------------------------------
+            # button_message  = "Name: " + str(self.button.name)
+            # if press_info.value is not None:
+            #     button_message += "\nValue: \t" + str(press_info.value)
+
+            # self.hass.async_run_job(self.hass.services.async_call('persistent_notification', 'create',
+            #     {
+            #         "message":button_message,
+            #         "title":"Status Change"
+            #     }
+            # ))
         except Exception as ex:
             _LOGGER.critical(ex)
     
@@ -78,7 +128,7 @@ class ButtonHandler(Light):
     @property
     def name(self):
         """Return the name of the switch."""
-        return self.button.name
+        return self.temp_panel_name + self.button.id
     
     @property
     def available(self):
@@ -95,13 +145,13 @@ class ButtonHandler(Light):
         """Return true if device is on."""
         if self.press_info == None:
             if self.button._update():
-                return STATE_ON
-            return STATE_OFF
+                return "on"
+            return "off"
         else:
             if self.press_info.value == 0 or self.press_info.value == '0':
-                return STATE_OFF
+                return "off"
             else:
-                return STATE_ON
+                return "on"
 
     async def async_turn_on(self, **kwargs):
         """Turn the device on."""
@@ -112,21 +162,16 @@ class ButtonHandler(Light):
         """Turn the device off."""
         # await self.device.set_off()
         pass
-
+    
     @property
     def device_state_attributes(self):
         """Return the device state attributes."""
-        button_struct = {
-            "name":self.button.name,
-            "group":self.button.group,
-            "cat":self.button.cat,
-            "id":self.button.id,
-            "friendly_name":self.button.name
-        }
-        status = STATE_OFF
-        if self.button._update():
-            status = STATE_ON
-        return button_struct
+        # get Group Name
+        # attributes = {}
+        # attributes['group'] = self._group
+        # attributes['friendly_name'] = self._name
+        # return attributes
+        pass
     
     def _setAttributs(self):
         button_struct = {
@@ -136,7 +181,8 @@ class ButtonHandler(Light):
             "id":self.button.id,
             "friendly_name":self.button.name
         }
-        status = STATE_OFF
+        status = "off"
         if self.button._update():
-            status = STATE_ON
+            status = "on"
         # self.hass.states.async_set("light" + "." + self.temp_panel_name + self.button.id, status, button_struct)
+        self.hass.states.async_set("switch" + "." + self.temp_panel_name + self.button.id, status, button_struct)

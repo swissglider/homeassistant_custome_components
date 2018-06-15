@@ -1,0 +1,24 @@
+
+demo_paulus:
+  hide_if_away: false
+  icon:
+  mac:
+  name: Paulus
+  picture:
+  track: true
+
+demo_anne_therese:
+  hide_if_away: false
+  icon:
+  mac:
+  name: Anne Therese
+  picture:
+  track: true
+
+demo_home_boy:
+  hide_if_away: false
+  icon:
+  mac:
+  name: Home Boy
+  picture:
+  track: true
